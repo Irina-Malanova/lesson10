@@ -1,10 +1,8 @@
 package ru.gb.market.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.beans.support.PagedListHolder;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -34,12 +32,15 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping("/cart")
-    public Page<ProductDto> findAll(@RequestParam(name = "p", defaultValue = "1") int pageIndex, Pageable pageable) {
+    public Page<ProductDto> findAll(@RequestParam(name = "p", defaultValue = "1") int pageIndex) {
         if (pageIndex < 1) {
             pageIndex = 1;
         }
         int size= cartService.getProductList().size();
+
         List<ProductDto> productDtos = cartService.getProductListByPage(pageIndex - 1, 10).stream().map(ProductDto::new).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(pageIndex - 1, 10);
+
         return new PageImpl<>(productDtos, pageable, size);
     }
 
